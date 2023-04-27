@@ -4,6 +4,7 @@ This application provides an API for processing transactions and managing user b
 
 ## Requirements
 
+- go
 - Docker
 - Docker Compose
 - Make
@@ -16,10 +17,11 @@ This application provides an API for processing transactions and managing user b
 
 1. Clone the repository: git clone `https://github.com/mufasadev/enlabs-test.git`
 2. Go to the project directory: cd enlabs-test
-3. Edit .env. Setup LOCAL_PORT (make sure it is not used by another application) 
-4. Setup DB_PORT (make sure it is not used by another application)
-5. Run make install wait for the docker containers to be built and started
-6. To rebuild the containers run make up_build. To rebuild the containers and drop the database run make up_build_all
+3. Run go mod download to download the dependencies and go mod vendor to create a vendor directory
+4. Edit .env. Setup LOCAL_PORT (make sure it is not used by another application) 
+5. Setup DB_PORT (make sure it is not used by another application)
+6. Run make install wait for the docker containers to be built and started
+7. To rebuild the containers run make up_build. To rebuild the containers and drop the database run make up_build_all
 
 
 ## Testing the application with curl
