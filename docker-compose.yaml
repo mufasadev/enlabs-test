@@ -1,0 +1,86 @@
+version: "3.8"
+
+services:
+  enlabs-test_app:
+    container_name: ${PROJECT_NAME}_enlabs-test_app
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: app
+    ports:
+      - "${LOCAL_PORT}:${PORT}"
+    environment:
+        DB_DRIVER: ${DB_DRIVER}
+        DB_HOST: postgres
+        DB_PORT: ${DB_PORT}
+        DB_DATABASE: ${DB_DATABASE}
+        DB_USERNAME: ${DB_USERNAME}
+        DB_PASSWORD: ${DB_PASSWORD}
+        DB_SSLMODE: ${DB_SSLMODE}
+        DB_MAX_CONN_ATTEMPTS: ${DB_MAX_CONN_ATTEMPTS}
+        PORT: ${PORT}
+        PROCESS_INTERVAL: ${PROCESS_INTERVAL}
+
+  enlabs-unit:
+    container_name: ${PROJECT_NAME}_enlabs-unit
+    build:
+      context: .
+      dockerfile: unit.dockerfile
+    environment:
+        DB_DRIVER: ${DB_DRIVER}
+        DB_HOST: postgres
+        DB_PORT: ${DB_PORT}
+        DB_DATABASE: ${DB_DATABASE}
+        DB_USERNAME: ${DB_USERNAME}
+        DB_PASSWORD: ${DB_PASSWORD}
+        DB_SSLMODE: ${DB_SSLMODE}
+        DB_MAX_CONN_ATTEMPTS: ${DB_MAX_CONN_ATTEMPTS}
+
+  enlabs-run_tests:
+    container_name: ${PROJECT_NAME}_enlabs-run_tests
+    build:
+      context: .
+      dockerfile: testing.dockerfile
+      args:
+        SERVICE_NAME: app
+    environment:
+      API_URL: enlabs-test_app
+      API_PORT: ${PORT}
+
+  postgres:
+    container_name: ${PROJECT_NAME}_postgres
+    image: 'postgres:15-alpine'
+    ports:
+      - "${DB_PORT}:5432"
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    volumes:
+      - enlabs_test_postgres_data:/var/lib/postgresql/data/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  migrate:
+    image: migrate/migrate:v4.15.2
+    volumes:
+      - ./migrations:/migrations
+    entrypoint:
+      [
+        "migrate",
+        "-path",
+        "/migrations",
+        "-database",
+        "postgres://${DB_USERNAME}:${DB_PASSWORD}@postgres:${DB_PORT}/${DB_DATABASE}?sslmode=disable",
+      ]
+    command: ["up"]
+    depends_on:
+      - postgres
+    restart: on-failure
+
+volumes:
+  enlabs_test_postgres_data:

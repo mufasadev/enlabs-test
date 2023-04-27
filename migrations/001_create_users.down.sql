@@ -1,0 +1,5 @@
+BEGIN;
+    DROP TABLE IF EXISTS public.users CASCADE;
+    DROP TABLE IF EXISTS public.sources CASCADE;
+    DROP TABLE IF EXISTS public.transactions CASCADE;
+COMMIT;
