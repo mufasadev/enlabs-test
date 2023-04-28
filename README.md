@@ -22,7 +22,7 @@ This application provides an API for processing transactions and managing user b
 5. Setup DB_PORT (make sure it is not used by another application)
 6. Run make install wait for the docker containers to be built and started
 7. To rebuild the containers run make up_build. To rebuild the containers and drop the database run make up_build_all
-
+8. To change the interval for canceling an odd transaction, use the PROCESS_INTERVAL parameter inside the .env file
 
 ## Testing the application with curl
 
